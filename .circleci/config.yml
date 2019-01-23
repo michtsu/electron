@@ -193,6 +193,7 @@ step-electron-build: &step-electron-build
     name: Electron build
     command: |
       cd src
+      echo "building with $NUMBER_OF_NINJA_PROCESSES processes"
       ninja -C out/Default electron -j $NUMBER_OF_NINJA_PROCESSES
 
 step-maybe-electron-dist-strip: &step-maybe-electron-dist-strip
