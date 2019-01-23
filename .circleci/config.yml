@@ -193,7 +193,7 @@ step-electron-build: &step-electron-build
     name: Electron build
     command: |
       cd src
-      ninja -C out/Default electron -j$NUMBER_OF_NINJA_PROCESSES
+      ninja -C out/Default electron -j $NUMBER_OF_NINJA_PROCESSES
 
 step-maybe-electron-dist-strip: &step-maybe-electron-dist-strip
   run:
@@ -221,7 +221,7 @@ step-electron-chromedriver-build: &step-electron-chromedriver-build
     name: Build chromedriver.zip
     command: |
       cd src
-      ninja -C out/Default chrome/test/chromedriver -j$NUMBER_OF_NINJA_PROCESSES
+      ninja -C out/Default chrome/test/chromedriver -j $NUMBER_OF_NINJA_PROCESSES
       electron/script/strip-binaries.py --target-cpu="$TARGET_ARCH" --file $PWD/out/Default/chromedriver
       ninja -C out/Default electron:electron_chromedriver_zip
 
@@ -300,7 +300,7 @@ step-ffmpeg-build: &step-ffmpeg-build
     name: Non proprietary ffmpeg build
     command: |
       cd src
-      ninja -C out/ffmpeg electron:electron_ffmpeg_zip -j$NUMBER_OF_NINJA_PROCESSES
+      ninja -C out/ffmpeg electron:electron_ffmpeg_zip -j $NUMBER_OF_NINJA_PROCESSES
 
 step-verify-ffmpeg: &step-verify-ffmpeg
   run:
@@ -351,7 +351,7 @@ step-mksnapshot-build: &step-mksnapshot-build
           electron/script/strip-binaries.py --file $PWD/out/Default/mksnapshot
         fi
       fi
-      ninja -C out/Default electron:electron_mksnapshot_zip -j$NUMBER_OF_NINJA_PROCESSES
+      ninja -C out/Default electron:electron_mksnapshot_zip -j $NUMBER_OF_NINJA_PROCESSES
 
 step-mksnapshot-store: &step-mksnapshot-store
   store_artifacts:
@@ -404,7 +404,7 @@ step-maybe-native-mksnapshot-build: &step-maybe-native-mksnapshot-build
     command: |
       if [ "$BUILD_NATIVE_MKSNAPSHOT" == "1" ]; then
         cd src
-        ninja -C out/native_mksnapshot electron:electron_mksnapshot_zip -j$NUMBER_OF_NINJA_PROCESSES
+        ninja -C out/native_mksnapshot electron:electron_mksnapshot_zip -j $NUMBER_OF_NINJA_PROCESSES
       else
         echo 'Skipping native mksnapshot build for non arm build'
       fi
