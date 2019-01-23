@@ -266,9 +266,9 @@ step-persist-data-for-tests: &step-persist-data-for-tests
     paths:
       # Build artifacts
       - src/out/Default/dist.zip
-      - src/out/Default/ffmpeg.zip
       - src/out/Default/mksnapshot.zip
       - src/out/Default/gen/node_headers
+      - src/out/ffmpeg/ffmpeg.zip
 
 step-electron-dist-unzip: &step-electron-dist-unzip
   run:
