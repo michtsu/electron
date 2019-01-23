@@ -15,27 +15,19 @@ docker-image: &docker-image
 machine-linux-medium: &machine-linux-medium
   <<: *docker-image
   resource_class: medium
-  environment:
-    NUMBER_OF_NINJA_PROCESSES: 3
 
 machine-linux-2xlarge: &machine-linux-2xlarge
   <<: *docker-image
   resource_class: 2xlarge
-  environment:
-    NUMBER_OF_NINJA_PROCESSES: 18
 
 machine-mac: &machine-mac
   macos:
     xcode: "8.3.3"
-  environment:
-    NUMBER_OF_NINJA_PROCESSES: 6
 
 machine-mac-large: &machine-mac-large
   resource_class: large
   macos:
     xcode: "8.3.3"
-  environment:
-    NUMBER_OF_NINJA_PROCESSES: 10
 
 # Build configurations options.
 env-debug-build: &env-debug-build
@@ -92,6 +84,18 @@ env-enable-sccache: &env-enable-sccache
 
 env-send-slack-notifications: &env-send-slack-notifications
   NOTIFY_SLACK: true
+
+env-linux-medium: &env-linux-medium
+  NUMBER_OF_NINJA_PROCESSES: 3
+
+env-linux-2xlarge: &env-linux-2xlarge
+  NUMBER_OF_NINJA_PROCESSES: 18
+
+env-machine-mac: &env-machine-mac
+  NUMBER_OF_NINJA_PROCESSES: 6
+
+env-mac-large: &env-mac-large
+  NUMBER_OF_NINJA_PROCESSES: 10
 
 # Individual (shared) steps.
 step-maybe-notify-slack-failure: &step-maybe-notify-slack-failure
@@ -715,29 +719,35 @@ jobs:
   linux-checkout:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       GCLIENT_EXTRA_ARGS: '--custom-var=checkout_arm=True --custom-var=checkout_arm64=True'
     <<: *steps-checkout
 
   linux-checkout-for-native-tests:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       GCLIENT_EXTRA_ARGS: '--custom-var=checkout_pyyaml=True'
     <<: *steps-checkout
 
   linux-checkout-for-native-tests-with-no-patches:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       GCLIENT_EXTRA_ARGS: '--custom-var=apply_patches=False --custom-var=checkout_pyyaml=True'
     <<: *steps-checkout
 
   mac-checkout:
     <<: *machine-mac-large
+    environment:
+      <<: *env-mac-large
     <<: *steps-checkout
 
   # Layer 2: Builds.
   linux-x64-debug:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       <<: *env-debug-build
       <<: *env-enable-sccache
     <<: *steps-electron-build
@@ -745,6 +755,7 @@ jobs:
   linux-x64-testing:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       <<: *env-testing-build
       <<: *env-enable-sccache
     <<: *steps-electron-build-for-tests
@@ -752,6 +763,7 @@ jobs:
   linux-x64-chromedriver:
     <<: *machine-linux-medium
     environment:
+      <<: *env-linux-medium
       <<: *env-release-build
       <<: *env-enable-sccache
       <<: *env-send-slack-notifications
@@ -760,6 +772,7 @@ jobs:
   linux-x64-release:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       <<: *env-release-build
       <<: *env-enable-sccache
       <<: *env-send-slack-notifications
@@ -768,6 +781,7 @@ jobs:
   linux-x64-publish:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       GCLIENT_EXTRA_ARGS: '--custom-var=checkout_boto=True --custom-var=checkout_requests=True'
       <<: *env-release-build
     <<: *steps-electron-build-for-publish
@@ -775,6 +789,7 @@ jobs:
   linux-ia32-debug:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       <<: *env-ia32
       <<: *env-debug-build
       <<: *env-enable-sccache
@@ -783,6 +798,7 @@ jobs:
   linux-ia32-testing:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       <<: *env-ia32
       <<: *env-testing-build
       <<: *env-enable-sccache
@@ -791,6 +807,7 @@ jobs:
   linux-ia32-chromedriver:
     <<: *machine-linux-medium
     environment:
+      <<: *env-linux-medium
       <<: *env-ia32
       <<: *env-release-build
       <<: *env-enable-sccache
@@ -800,6 +817,7 @@ jobs:
   linux-ia32-release:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       <<: *env-ia32
       <<: *env-release-build
       <<: *env-enable-sccache
@@ -809,6 +827,7 @@ jobs:
   linux-ia32-publish:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       GCLIENT_EXTRA_ARGS: '--custom-var=checkout_boto=True --custom-var=checkout_requests=True'
       <<: *env-ia32
       <<: *env-release-build
@@ -817,6 +836,7 @@ jobs:
   linux-arm-debug:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       <<: *env-arm
       <<: *env-debug-build
       <<: *env-enable-sccache
@@ -825,6 +845,7 @@ jobs:
   linux-arm-testing:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       <<: *env-arm
       <<: *env-testing-build
       <<: *env-enable-sccache
@@ -834,6 +855,7 @@ jobs:
   linux-arm-chromedriver:
     <<: *machine-linux-medium
     environment:
+      <<: *env-linux-medium
       <<: *env-arm
       <<: *env-release-build
       <<: *env-enable-sccache
@@ -843,6 +865,7 @@ jobs:
   linux-arm-release:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       <<: *env-arm
       <<: *env-release-build
       <<: *env-enable-sccache
@@ -852,6 +875,7 @@ jobs:
   linux-arm-publish:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       <<: *env-arm
       <<: *env-release-build
       GCLIENT_EXTRA_ARGS: '--custom-var=checkout_arm=True --custom-var=checkout_boto=True --custom-var=checkout_requests=True'
@@ -860,6 +884,7 @@ jobs:
   linux-arm-native-mksnapshot:
     <<: *machine-linux-medium
     environment:
+      <<: *env-linux-medium
       <<: *env-arm
       <<: *env-release-build
       <<: *env-enable-sccache
@@ -869,6 +894,7 @@ jobs:
   linux-arm64-debug:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       <<: *env-arm64
       <<: *env-debug-build
       <<: *env-enable-sccache
@@ -877,6 +903,7 @@ jobs:
   linux-arm64-testing:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       <<: *env-arm64
       <<: *env-testing-build
       <<: *env-enable-sccache
@@ -886,6 +913,7 @@ jobs:
   linux-arm64-chromedriver:
     <<: *machine-linux-medium
     environment:
+      <<: *env-linux-medium
       <<: *env-arm64
       <<: *env-release-build
       <<: *env-enable-sccache
@@ -895,6 +923,7 @@ jobs:
   linux-arm64-release:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       <<: *env-arm64
       <<: *env-release-build
       <<: *env-enable-sccache
@@ -904,6 +933,7 @@ jobs:
   linux-arm64-publish:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       <<: *env-arm64
       <<: *env-release-build
       GCLIENT_EXTRA_ARGS: '--custom-var=checkout_arm64=True --custom-var=checkout_boto=True --custom-var=checkout_requests=True'
@@ -912,6 +942,7 @@ jobs:
   linux-arm64-native-mksnapshot:
     <<: *machine-linux-medium
     environment:
+      <<: *env-linux-medium
       <<: *env-arm64
       <<: *env-release-build
       <<: *env-enable-sccache
@@ -921,6 +952,7 @@ jobs:
   osx-testing:
     <<: *machine-mac-large
     environment:
+      <<: *env-mac-large
       <<: *env-testing-build
       <<: *env-enable-sccache
     <<: *steps-electron-build-for-tests
@@ -928,6 +960,7 @@ jobs:
   osx-chromedriver:
     <<: *machine-mac
     environment:
+      <<: *env-machine-mac
       <<: *env-release-build
       <<: *env-enable-sccache
       <<: *env-send-slack-notifications
@@ -936,6 +969,7 @@ jobs:
   osx-release:
     <<: *machine-mac-large
     environment:
+      <<: *env-mac-large
       <<: *env-release-build
       <<: *env-enable-sccache
     <<: *steps-electron-build-for-tests
@@ -943,12 +977,14 @@ jobs:
   osx-publish:
     <<: *machine-mac-large
     environment:
+      <<: *env-mac-large
       <<: *env-release-build
     <<: *steps-electron-build-for-publish
 
   mas-testing:
     <<: *machine-mac-large
     environment:
+      <<: *env-mac-large
       <<: *env-mas
       <<: *env-testing-build
       <<: *env-enable-sccache
@@ -957,6 +993,7 @@ jobs:
   mas-chromedriver:
     <<: *machine-mac
     environment:
+      <<: *env-machine-mac
       <<: *env-release-build
       <<: *env-enable-sccache
       <<: *env-send-slack-notifications
@@ -965,6 +1002,7 @@ jobs:
   mas-release:
     <<: *machine-mac-large
     environment:
+      <<: *env-mac-large
       <<: *env-mas
       <<: *env-release-build
       <<: *env-enable-sccache
@@ -973,6 +1011,7 @@ jobs:
   mas-publish:
     <<: *machine-mac-large
     environment:
+      <<: *env-mac-large
       <<: *env-mas
       <<: *env-release-build
     <<: *steps-electron-build-for-publish
@@ -981,6 +1020,7 @@ jobs:
   linux-x64-unittests:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       <<: *env-unittests
       <<: *env-enable-sccache
       <<: *env-headless-testing
@@ -989,6 +1029,7 @@ jobs:
   linux-x64-disabled-unittests:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       <<: *env-unittests
       <<: *env-enable-sccache
       <<: *env-headless-testing
@@ -998,6 +1039,7 @@ jobs:
   linux-x64-chromium-unittests:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       <<: *env-unittests
       <<: *env-enable-sccache
       <<: *env-headless-testing
@@ -1007,6 +1049,7 @@ jobs:
   linux-x64-browsertests:
     <<: *machine-linux-2xlarge
     environment:
+      <<: *env-linux-2xlarge
       <<: *env-browsertests
       <<: *env-testing-build
       <<: *env-enable-sccache
@@ -1016,6 +1059,7 @@ jobs:
   linux-x64-testing-tests:
     <<: *machine-linux-medium
     environment:
+      <<: *env-linux-medium
       <<: *env-headless-testing
       <<: *env-stack-dumping
     <<: *steps-tests
@@ -1023,6 +1067,7 @@ jobs:
   linux-x64-release-tests:
     <<: *machine-linux-medium
     environment:
+      <<: *env-linux-medium
       <<: *env-headless-testing
       <<: *env-send-slack-notifications
     <<: *steps-tests
@@ -1030,6 +1075,7 @@ jobs:
   linux-x64-verify-ffmpeg:
     <<: *machine-linux-medium
     environment:
+      <<: *env-linux-medium
       <<: *env-headless-testing
       <<: *env-send-slack-notifications
     <<: *steps-verify-ffmpeg
@@ -1037,6 +1083,7 @@ jobs:
   linux-x64-verify-mksnapshot:
     <<: *machine-linux-medium
     environment:
+      <<: *env-linux-medium
       <<: *env-headless-testing
       <<: *env-send-slack-notifications
     <<: *steps-verify-mksnapshot
@@ -1044,6 +1091,7 @@ jobs:
   linux-ia32-testing-tests:
     <<: *machine-linux-medium
     environment:
+      <<: *env-linux-medium
       <<: *env-ia32
       <<: *env-headless-testing
       <<: *env-stack-dumping
@@ -1052,6 +1100,7 @@ jobs:
   linux-ia32-release-tests:
     <<: *machine-linux-medium
     environment:
+      <<: *env-linux-medium
       <<: *env-ia32
       <<: *env-headless-testing
       <<: *env-send-slack-notifications
@@ -1060,6 +1109,7 @@ jobs:
   linux-ia32-verify-ffmpeg:
     <<: *machine-linux-medium
     environment:
+      <<: *env-linux-medium
       <<: *env-ia32
       <<: *env-headless-testing
       <<: *env-send-slack-notifications
@@ -1068,6 +1118,7 @@ jobs:
   linux-ia32-verify-mksnapshot:
     <<: *machine-linux-medium
     environment:
+      <<: *env-linux-medium
       <<: *env-ia32
       <<: *env-headless-testing
       <<: *env-send-slack-notifications
@@ -1076,12 +1127,14 @@ jobs:
   osx-testing-tests:
     <<: *machine-mac-large
     environment:
+      <<: *env-mac-large
       <<: *env-stack-dumping
     <<: *steps-tests
 
   osx-release-tests:
     <<: *machine-mac-large
     environment:
+      <<: *env-mac-large
       <<: *env-stack-dumping
       <<: *env-send-slack-notifications
     <<: *steps-tests
@@ -1089,24 +1142,28 @@ jobs:
   osx-verify-ffmpeg:
     <<: *machine-mac
     environment:
+      <<: *env-machine-mac
       <<: *env-send-slack-notifications
     <<: *steps-verify-ffmpeg
 
   osx-verify-mksnapshot:
     <<: *machine-mac
     environment:
+      <<: *env-machine-mac
       <<: *env-send-slack-notifications
     <<: *steps-verify-mksnapshot
 
   mas-testing-tests:
     <<: *machine-mac-large
     environment:
+      <<: *env-mac-large
       <<: *env-stack-dumping
     <<: *steps-tests
 
   mas-release-tests:
     <<: *machine-mac-large
     environment:
+      <<: *env-mac-large
       <<: *env-stack-dumping
       <<: *env-send-slack-notifications
     <<: *steps-tests
@@ -1114,12 +1171,14 @@ jobs:
   mas-verify-ffmpeg:
     <<: *machine-mac
     environment:
+      <<: *env-machine-mac
       <<: *env-send-slack-notifications
     <<: *steps-verify-ffmpeg
 
   mas-verify-mksnapshot:
     <<: *machine-mac
     environment:
+      <<: *env-machine-mac
       <<: *env-send-slack-notifications
     <<: *steps-verify-mksnapshot
 
@@ -1127,28 +1186,32 @@ jobs:
   linux-x64-release-summary:
     <<: *machine-linux-medium
     environment:
-      - *env-send-slack-notifications
+      <<: *env-linux-medium
+      <<: *env-send-slack-notifications
     steps:
       - *step-maybe-notify-slack-success
 
   linux-ia32-release-summary:
     <<: *machine-linux-medium
     environment:
-      - *env-send-slack-notifications
+      <<: *env-linux-medium
+      <<: *env-send-slack-notifications
     steps:
       - *step-maybe-notify-slack-success
 
   linux-arm-release-summary:
     <<: *machine-linux-medium
     environment:
-      - *env-send-slack-notifications
+      <<: *env-linux-medium
+      <<: *env-send-slack-notifications
     steps:
       - *step-maybe-notify-slack-success
 
   linux-arm64-release-summary:
     <<: *machine-linux-medium
     environment:
-      - *env-send-slack-notifications
+      <<: *env-linux-medium
+      <<: *env-send-slack-notifications
     steps:
       - *step-maybe-notify-slack-success
 
